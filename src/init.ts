@@ -6,4 +6,4 @@ export const init = async () => {
 
 export const register = (init: Function) => {
     globalInitializers.push(init);
-}
+};

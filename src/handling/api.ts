@@ -6,7 +6,9 @@ import {
     Context,
 } from 'aws-lambda';
 
-export default (next: APIGatewayProxyHandler): APIGatewayProxyHandler => {
+export type ApiHandler = (event?: APIGatewayEvent, context?: Context, callback?: APIGatewayProxyCallback) => Promise<any>;
+
+export default (next: ApiHandler): APIGatewayProxyHandler => {
     return async (event: APIGatewayEvent, context: Context, callback: APIGatewayProxyCallback): Promise<APIGatewayProxyResult> => {
         try {
             await normalize(event);
@@ -18,8 +20,7 @@ export default (next: APIGatewayProxyHandler): APIGatewayProxyHandler => {
 }
 
 const normalize = async (event: APIGatewayEvent) => {
-    if (['POST', 'PUT', 'PATCH'].indexOf(event.httpMethod) > -1) {
-        event.body = event.body || '{}';
+    if (event.body) {
         try {
             event.body = JSON.parse(event.body);
         } catch (e) {

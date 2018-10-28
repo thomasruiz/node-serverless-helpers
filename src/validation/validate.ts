@@ -7,4 +7,4 @@ export const validate = async <T>(data: T, schema: SchemaLike): Promise<T> => {
     }
 
     return result.value;
-}
+};

@@ -1,12 +1,19 @@
 import {APIGatewayProxyHandler, Callback, Context} from 'aws-lambda';
 
 import {init} from '../init';
-import api from './api';
+import api, {ApiHandler} from './api';
+
+export {ApiHandler} from './api';
 
 let initPromise: Promise<any>;
+let callInit = true;
 
-export const handle = (next: (event: any, context?: Context, callback?: Callback) => any, shouldThrowOnUnhandled = false) => {
-    if (!initPromise) {
+export const handle = (
+    next: (event: any, context?: Context, callback?: Callback) => any,
+    shouldThrowOnUnhandled = true,
+): ((event: any, context?: Context, callback?: Callback) => Promise<any>) => {
+    if (callInit) {
+        callInit = false;
         initPromise = init();
     }
 
@@ -29,6 +36,6 @@ export const handle = (next: (event: any, context?: Context, callback?: Callback
     };
 };
 
-const isApi = (event: any): false | ((next: APIGatewayProxyHandler) => APIGatewayProxyHandler) => {
+const isApi = (event: any): false | ((next: ApiHandler) => APIGatewayProxyHandler) => {
     return event.pathParameters !== undefined ? api : false;
 };
