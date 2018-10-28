@@ -2,9 +2,14 @@
   "name": "node-serverless-helpers",
   "version": "0.0.1",
   "description": "Helpers to simplify nodejs code on FASS environments",
+  "author": "Thomas Ruiz <contact@thomasruiz.eu>",
+  "license": "ISC",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "repository": "https://github.com/thomasruiz/node-serverless-helpers",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thomasruiz/node-serverless-helpers"
+  },
   "keywords": [
     "node",
     "serverless",
@@ -25,8 +30,6 @@
     "test": "jest",
     "test:coverage": "jest --coverage"
   },
-  "author": "Thomas Ruiz <contact@thomasruiz.eu>",
-  "license": "ISC",
   "dependencies": {
     "@types/jest": "^23.3.8",
     "jest": "^23.6.0",
