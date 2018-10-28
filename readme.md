@@ -1,5 +1,9 @@
 # Node Serverless Helpers
 
+[![build](https://travis-ci.org/thomasruiz/node-serverless-helpers.svg?branch=master)](https://travis-ci.org/thomasruiz/node-serverless-helpers.svg?branch=master)
+[![codecov](https://codecov.io/gh/thomasruiz/node-serverless-helpers/branch/master/graph/badge.svg)](https://codecov.io/gh/thomasruiz/node-serverless-helpers)
+[![dependencies](https://david-dm.org/thomasruiz/node-serverless-helpers.svg)](https://david-dm.org/thomasruiz/node-serverless-helpers.svg)
+
 Node Serverless Helpers is a package meant to make your life easier when 
 developing lambda functions in NodeJS.
 
