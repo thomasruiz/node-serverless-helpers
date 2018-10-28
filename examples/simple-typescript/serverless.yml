@@ -1,0 +1,18 @@
+service: greenfingers
+
+plugins:
+  - serverless-plugin-typescript
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  region: eu-west-1
+
+functions:
+  hello:
+    handler: src/handler.helloWorld
+    events:
+      - http:
+          path: ''
+          method: get

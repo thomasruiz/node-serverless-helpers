@@ -5,3 +5,4 @@
 - Input validation through Joi
 - API Gateway request proxy handler
 - Register init functions
+- Added samples

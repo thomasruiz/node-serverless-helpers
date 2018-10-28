@@ -1,0 +1,17 @@
+service: hello-world
+
+plugins:
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  region: us-east-1
+
+functions:
+  hello:
+    handler: src/handler.helloWorld
+    events:
+      - http:
+          path: ''
+          method: get
