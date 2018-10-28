@@ -3,6 +3,6 @@
 const handle = require('node-serverless-helpers').handle;
 
 module.exports.helloWorld = handle(async (event) => {
-    return 'hello lambda world!';
+    return 'hello lambda world! called from ' + event.path;
 });
 

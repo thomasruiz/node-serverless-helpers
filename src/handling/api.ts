@@ -54,7 +54,9 @@ const formatError = async (err: any): Promise<APIGatewayProxyResult> => {
         console.info(err);
         return {
             statusCode: 422,
-            body: JSON.stringify(err.details),
+            body: JSON.stringify({
+                data: err.details,
+            }),
         };
     }
 

@@ -5,7 +5,7 @@ import api from './api';
 
 let initPromise: Promise<any>;
 
-export const handle = (next: (event: any) => any) => {
+export const handle = (next: (event: any, context?: Context, callback?: Callback) => any, shouldThrowOnUnhandled = false) => {
     if (!initPromise) {
         initPromise = init();
     }
@@ -20,8 +20,12 @@ export const handle = (next: (event: any) => any) => {
             }
         }
 
-        console.log('unhandled event');
-        throw 'Unhandled event';
+        if (shouldThrowOnUnhandled) {
+            console.log('unhandled event');
+            throw 'Unhandled event';
+        } else {
+            return next(event, context, callback);
+        }
     };
 };
 
