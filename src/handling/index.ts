@@ -8,6 +8,10 @@ export {ApiHandler} from './api';
 let initPromise: Promise<any>;
 let callInit = true;
 
+const isApi = (event: any): false | ((next: ApiHandler) => APIGatewayProxyHandler) => {
+    return event.pathParameters !== undefined ? api : false;
+};
+
 export const handle = (
     next: (event: any, context?: Context, callback?: Callback) => any,
     shouldThrowOnUnhandled = true,
@@ -29,13 +33,11 @@ export const handle = (
 
         if (shouldThrowOnUnhandled) {
             console.log('unhandled event');
-            throw 'Unhandled event';
+            const error = new Error('Unhandled event');
+            error.name = 'UnhandledEvent';
+            throw error;
         } else {
             return next(event, context, callback);
         }
     };
-};
-
-const isApi = (event: any): false | ((next: ApiHandler) => APIGatewayProxyHandler) => {
-    return event.pathParameters !== undefined ? api : false;
 };

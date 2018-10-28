@@ -32,7 +32,7 @@ describe('handling', () => {
             try {
                 await handler({});
             } catch (e) {
-                expect(e).toBe('Unhandled event');
+                expect(e.name).toBe('UnhandledEvent');
                 expect(called).toBe(false);
             }
         });
