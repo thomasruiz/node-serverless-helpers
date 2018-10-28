@@ -8,3 +8,5 @@ tsconfig.json
 src/**/*.spec.ts
 node_modules
 coverage
+src
+examples
