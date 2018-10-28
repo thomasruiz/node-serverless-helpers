@@ -15,13 +15,32 @@ yarn add node-serverless-helpers
 
 Here is a sample working code.
 
-```typescript
-// hello.js
-import {handle} from 'node-serverless-helpers';
+```javascript
+// handler.js
+'use strict';
 
-export const world = handle(async (event) => {
+const handle = require('node-serverless-helpers').handle;
+
+module.exports.helloWorld = handle(async (event) => {
     return 'hello lambda world!';
 });
+```
+
+```yaml
+service: hello-world
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  region: us-east-1
+
+functions:
+  hello:
+    handler: handler.helloWorld
+    events:
+      - http:
+          path: ''
+          method: get
 ```
 
 The important part is the `handle` function that does 3 things.
@@ -32,6 +51,6 @@ The important part is the `handle` function that does 3 things.
   event comes from, and add useful middlewares to it.
  3. Run your function, and wrap the result to the expected format.
 
-## License
+## Licence
 
 [ISC - Copyright 2018 Thomas Ruiz](https://github.com/thomasruiz/node-serverless-helpers/blob/master/LICENCE)
