@@ -35,15 +35,15 @@
     "test:coverage": "jest --coverage"
   },
   "dependencies": {
-    "@types/jest": "^23.3.8",
-    "jest": "^23.6.0",
-    "joi": "^14.0.1",
-    "ts-jest": "^23.10.4"
+    "joi": "^14.0.1"
   },
   "devDependencies": {
+    "@types/jest": "^23.3.8",
     "@types/aws-lambda": "^8.10.14",
     "@types/joi": "^13.6.1",
     "@types/node": "^10.12.0",
+    "jest": "^23.6.0",
+    "ts-jest": "^23.10.4",
     "ts-node": "^7.0.1",
     "tslint": "^5.11.0",
     "typescript": "^3.1.3"
