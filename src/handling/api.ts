@@ -64,6 +64,6 @@ const formatError = async (err: any): Promise<APIGatewayProxyResult> => {
 
     return {
         statusCode: err.statusCode || 500,
-        body: err.statusCode ? err.body : 'Internal Server Error',
+        body: JSON.stringify(err.body ? err.body : 'Internal Server Error'),
     };
 };
