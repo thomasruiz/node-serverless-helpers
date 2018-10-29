@@ -7,6 +7,10 @@
 Node Serverless Helpers is a package meant to make your life easier when 
 developing lambda functions in NodeJS.
 
+## Documentation
+
+The documentation can be found [in the Wiki](https://github.com/thomasruiz/node-serverless-helpers/wiki).
+
 ## Usage
 
 Install the package with npm or yarn.
@@ -31,6 +35,7 @@ module.exports.helloWorld = handle(async (event) => {
 ```
 
 ```yaml
+# serverless.yaml
 service: hello-world
 
 provider:
