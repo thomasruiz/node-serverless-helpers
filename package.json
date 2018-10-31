@@ -35,6 +35,7 @@
     "test:coverage": "jest --coverage"
   },
   "dependencies": {
+    "deepmerge": "^2.2.1",
     "joi": "^14.0.1"
   },
   "devDependencies": {

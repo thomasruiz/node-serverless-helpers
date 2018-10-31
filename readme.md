@@ -5,7 +5,8 @@
 [![dependencies](https://david-dm.org/thomasruiz/node-serverless-helpers.svg)](https://david-dm.org/thomasruiz/node-serverless-helpers.svg)
 
 Node Serverless Helpers is a package meant to make your life easier when 
-developing lambda functions in NodeJS.
+developing lambda functions in NodeJS. It handles events seamlessly and adds 
+useful defaults, helpers and functions to your project.
 
 ## Documentation
 

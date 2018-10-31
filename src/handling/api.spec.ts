@@ -1,10 +1,13 @@
 import {APIGatewayProxyEvent} from 'aws-lambda';
 import api from './api';
 
+jest.mock('../config', () => {
+    return {internalConfig: {api: {blacklist: ['password']}}};
+});
+
 describe('handling', () => {
     const defaultContext: any = {};
-    const defaultCallback: any = () => {
-    };
+    const defaultCallback: any = () => null;
 
     describe('api', () => {
         it('parses request body correctly', async () => {
@@ -61,7 +64,7 @@ describe('handling', () => {
             });
         });
 
-        it('strips response body of passwords', async () => {
+        it('strips response body of configured blacklist', async () => {
             const response = await api(
                 async (): Promise<any> => ({password: 'password'}),
             )({} as any, defaultContext, defaultCallback);

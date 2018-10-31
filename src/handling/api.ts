@@ -6,6 +6,8 @@ import {
     Context,
 } from 'aws-lambda';
 
+import {internalConfig} from '../config';
+
 export type ApiHandler = (event?: APIGatewayEvent, context?: Context, callback?: APIGatewayProxyCallback) => Promise<any>;
 
 const normalize = async (event: APIGatewayEvent) => {
@@ -34,7 +36,7 @@ const format = async (event: APIGatewayEvent, content: any): Promise<APIGatewayP
     return {
         statusCode: content ? httpMethodToStatus(event.httpMethod) : 204,
         body: content ? JSON.stringify(content, (key, value) => {
-            return ['password'].indexOf(key) > -1 ? undefined : value;
+            return internalConfig.api!.blacklist!.indexOf(key) > -1 ? undefined : value;
         }) : '',
     };
 };
