@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.2
+- Fix default configuration
+- Added todos in the readme
+
 ## v1.0.1
 - Fix changelog
 - Improved readme

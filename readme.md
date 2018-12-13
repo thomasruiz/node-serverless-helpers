@@ -61,6 +61,13 @@ The important part is the `handle` function that does 3 things.
   event comes from, and add useful middlewares to it.
  3. Run your function, and wrap the result to the expected format.
 
+## TODO
+
+ - Global logging system
+ - Implement middlewares for API
+ - Implement more handlers
+ - Remove all console.logs
+
 ## Licence
 
 [ISC - Copyright 2018 Thomas Ruiz](https://github.com/thomasruiz/node-serverless-helpers/blob/master/LICENCE)
