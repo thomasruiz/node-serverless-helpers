@@ -1,15 +1,21 @@
 import {all as merge} from 'deepmerge';
 
 export interface ApiConfigOptions {
-    blacklist?: string[];
+    blacklist: string[];
 };
 
 export interface ConfigOptions {
-    api?: ApiConfigOptions;
+    api: ApiConfigOptions;
 };
 
-export let internalConfig: ConfigOptions = {};
+let internalConfig: ConfigOptions = {
+    api: {
+        blacklist: [],
+    },
+};
 
 export const config = (options: ConfigOptions): void => {
-    internalConfig = merge([internalConfig, options]);
+    internalConfig = merge([internalConfig, options]) as ConfigOptions;
 };
+
+export const getConfig = (): ConfigOptions => internalConfig;

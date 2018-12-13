@@ -1,8 +1,8 @@
-import {config, internalConfig} from './config';
+import {config, getConfig} from './config';
 
 describe('config', () => {
     it('changes the default options', () => {
         config({api: {blacklist: []}});
-        expect(internalConfig).toStrictEqual({api: {blacklist: []}})
-    })
-})
+        expect(getConfig()).toStrictEqual({api: {blacklist: []}});
+    });
+});
