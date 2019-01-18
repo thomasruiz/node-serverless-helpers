@@ -33,6 +33,10 @@ const httpMethodToStatus = (method: string): number => {
 };
 
 const format = async (event: APIGatewayEvent, content: any): Promise<APIGatewayProxyResult> => {
+    if (content.statusCode && content.body) {
+        return JSON.stringify(content);
+    }
+
     return {
         statusCode: content ? httpMethodToStatus(event.httpMethod) : 204,
         body: content ? JSON.stringify(content, (key, value) => {
