@@ -35,14 +35,23 @@
     "test:coverage": "jest --coverage"
   },
   "dependencies": {
+    "change-case": "^3.1.0",
     "deepmerge": "^2.2.1",
-    "joi": "^14.0.1"
+    "dynogels": "^9.0.0",
+    "joi": "^14.0.1",
+    "lodash.pick": "^4.4.0",
+    "pluralize": "^7.0.0",
+    "uuid": "^3.3.2"
   },
   "devDependencies": {
-    "@types/jest": "^23.3.8",
     "@types/aws-lambda": "^8.10.14",
+    "@types/dynogels": "^9.0.0",
+    "@types/jest": "^23.3.8",
     "@types/joi": "^13.6.1",
+    "@types/lodash.pick": "^4.4.5",
     "@types/node": "^10.12.0",
+    "@types/pluralize": "0.0.29",
+    "@types/uuid": "^3.4.4",
     "jest": "^23.6.0",
     "ts-jest": "^23.10.4",
     "ts-node": "^7.0.1",
