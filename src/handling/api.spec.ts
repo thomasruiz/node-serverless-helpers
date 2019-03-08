@@ -3,7 +3,7 @@ import {getConfig} from '../config';
 import api from './api';
 
 jest.mock('../config');
-const mock = getConfig as jest.Mock<Function>;
+const mock = getConfig as jest.Mock;
 
 describe('handling', () => {
     const defaultContext: any = {};
@@ -11,7 +11,7 @@ describe('handling', () => {
 
     beforeEach(() => {
         jest.resetAllMocks();
-        mock.mockReturnValue({api: {blacklist: []}});
+        mock.mockReturnValue({api: {cors: false, blacklist: []}});
     });
 
     describe('api', () => {
@@ -110,6 +110,32 @@ describe('handling', () => {
             expect(response).toStrictEqual({
                 statusCode: 500,
                 body: JSON.stringify('Internal Server Error'),
+            });
+        });
+
+        it('returns the given response if it has a statusCode and a body', async () => {
+            const response = await api(
+                async (): Promise<any> => {
+                    return {statusCode: 200, body: JSON.stringify('foo')};
+                }
+            )({} as any, defaultContext, defaultCallback);
+
+            expect(response).toStrictEqual({
+                statusCode: 200,
+                body: JSON.stringify('foo'),
+            });
+        });
+
+        it('returns the given response if it has a statusCode 204', async () => {
+            const response = await api(
+                async (): Promise<any> => {
+                    return {statusCode: 204, body: null};
+                }
+            )({} as any, defaultContext, defaultCallback);
+
+            expect(response).toStrictEqual({
+                statusCode: 204,
+                body: null,
             });
         });
     });

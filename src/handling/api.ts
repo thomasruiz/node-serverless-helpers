@@ -37,7 +37,7 @@ const format = async (event: APIGatewayEvent, content: any): Promise<APIGatewayP
         return {statusCode: 204, body: ''};
     }
 
-    if (content.statusCode && content.body) {
+    if (content.statusCode && Object.keys(content).indexOf('body') !== -1) {
         return content;
     }
 
