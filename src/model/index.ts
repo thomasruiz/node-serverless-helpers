@@ -58,6 +58,7 @@ export class Model {
             } else {
                 if (!result) {
                     resolve(null);
+                    return;
                 }
                 instance = instance || new this();
                 instance.sync(result.attrs);
