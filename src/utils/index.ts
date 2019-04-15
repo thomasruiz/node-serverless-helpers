@@ -1,6 +1,9 @@
 export const cleanup = (value: any) => {
-    if (Array.isArray(value) && !value.length) {
-        return null;
+    if (
+        (Array.isArray(value) && !value.length)
+       || value === ''
+    ) {
+        value = null;
     } else if (value && typeof value === 'object') {
         Object.keys(value).forEach(key => {
             value[key] = cleanup(value[key]);
