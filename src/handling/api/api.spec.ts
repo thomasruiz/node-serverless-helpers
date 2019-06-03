@@ -93,6 +93,28 @@ describe('handling', () => {
       });
     });
 
+    it('adds cors headers with correct configuration', async () => {
+      mock.mockReturnValue({api: {cors: true}});
+
+      const headers = {host: 'localhost', 'x-foo': 'foo', 'x-bar': 'bar'};
+      const response = await apiHandler(async (_, response): Promise<any> => {
+        response.headers['x-baz'] = 'baz';
+        return null;
+      })({headers} as any, defaultContext, defaultCallback);
+
+      expect(response).toStrictEqual({
+        statusCode: 204,
+        headers: {
+          'Access-Control-Allow-Headers': 'host, x-foo, x-bar',
+          'Access-Control-Expose-Headers': 'x-baz',
+          'Access-Control-Allow-Origin': 'localhost',
+          'x-baz': 'baz',
+        },
+        multiValueHeaders: {},
+        body: '',
+      });
+    });
+
     it('formats validation errors', async () => {
       const errorDetails = [{}];
 

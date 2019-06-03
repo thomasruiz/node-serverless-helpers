@@ -30,36 +30,22 @@ const httpMethodToStatus = (method: string, statusCode?: number): number => {
   return statusCode || (method === 'POST' ? 201 : 200);
 };
 
-const singleHeaders = (event: ApiHandlerEvent, headers: OutgoingHttpHeaders): { [header: string]: boolean | number | string } => {
+export interface MultiValueHeaders {
+  [header: string]: Array<boolean | number | string>;
+}
+
+export interface SingleValueHeaders {
+  [header: string]: boolean | number | string;
+}
+
+const singleHeaders = (event: ApiHandlerEvent, headers: OutgoingHttpHeaders): SingleValueHeaders => {
   const finalHeaders = Object.keys(headers)
     .filter((k: string) => ['boolean', 'string', 'number'].indexOf(typeof headers[k]) > -1)
-    .reduce((p: { [header: string]: boolean | number | string }, k: string) => {
-      return Object.assign(p, {[k]: headers[k]});
-    }, {});
-
-  const cors = (getConfig().api.cors === true ? {} : getConfig().api.cors) as ApiConfigCorsOptions;
-  if (cors) {
-    finalHeaders['Access-Control-Allow-Origin'] = cors.origin || event.headers.host;
-  }
-
-  return finalHeaders;
-};
-
-const multipleHeaders = (
-  event: ApiHandlerEvent,
-  existingHeaders: { [header: string]: boolean | number | string },
-  headers: OutgoingHttpHeaders,
-): { [header: string]: Array<boolean | number | string> } => {
-  const finalHeaders = Object.keys(headers)
-    .filter((k: string) => ['boolean', 'string', 'number'].indexOf(typeof headers[k]) === -1)
-    .reduce((p: { [header: string]: boolean | number | string }, k: string) => {
-      return Object.assign(p, {[k]: headers[k]});
-    }, {});
+    .reduce((p: SingleValueHeaders, k: string) => Object.assign(p, {[k]: headers[k]}), {});
 
   const cors = (getConfig().api.cors === true ? {} : getConfig().api.cors) as ApiConfigCorsOptions;
   if (cors) {
     const exposedHeaders = Object.keys(headers)
-      .concat(Object.keys(existingHeaders))
       .filter((v, i, a) => a.indexOf(v) === i)
       .join(', ');
 
@@ -71,9 +57,15 @@ const multipleHeaders = (
   return finalHeaders;
 };
 
+const multipleHeaders = (event: ApiHandlerEvent, headers: OutgoingHttpHeaders): MultiValueHeaders => {
+  return Object.keys(headers)
+    .filter((k: string) => ['boolean', 'string', 'number'].indexOf(typeof headers[k]) === -1)
+    .reduce((p: MultiValueHeaders, k: string) => Object.assign(p, {[k]: headers[k]}), {});
+};
+
 const format = async (event: ApiHandlerEvent, response: Response, content: any): Promise<APIGatewayProxyResult> => {
   const headers = singleHeaders(event, response.headers);
-  const multiValueHeaders = multipleHeaders(event, headers, response.headers);
+  const multiValueHeaders = multipleHeaders(event, response.headers);
   if (!content) {
     return {
       headers,
