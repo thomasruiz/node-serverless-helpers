@@ -8,7 +8,7 @@ import {
 import { OutgoingHttpHeaders } from 'http';
 
 import { ApiConfigCorsOptions, getConfig } from '../../config';
-import { ApiHandler, ApiHandlerEvent } from './types';
+import { ApiHandler, ApiHandlerEvent, Response } from './types';
 
 const normalize = (event: APIGatewayProxyEvent): ApiHandlerEvent => {
   const clonedEvent = Object.assign(event);
@@ -63,7 +63,7 @@ const multipleHeaders = (event: ApiHandlerEvent, headers: OutgoingHttpHeaders): 
     .reduce((p: MultiValueHeaders, k: string) => Object.assign(p, {[k]: headers[k]}), {});
 };
 
-const format = async (event: ApiHandlerEvent, response: Response, content: any): Promise<APIGatewayProxyResult> => {
+const format = (event: ApiHandlerEvent, response: Response, content: any): APIGatewayProxyResult => {
   const headers = singleHeaders(event, response.headers);
   const multiValueHeaders = multipleHeaders(event, response.headers);
   if (!content) {
@@ -85,11 +85,7 @@ const format = async (event: ApiHandlerEvent, response: Response, content: any):
   };
 };
 
-const formatError = async (
-  event: APIGatewayProxyEvent,
-  response: Response,
-  err: any,
-): Promise<APIGatewayProxyResult> => {
+const formatError = (event: APIGatewayProxyEvent, response: Response, err: any): APIGatewayProxyResult => {
   switch (err.name) {
     case 'ValidationError':
       console.info(err);
@@ -116,8 +112,3 @@ export const apiHandler = (next: ApiHandler): APIGatewayProxyHandler => {
     }
   };
 };
-
-export class Response {
-  statusCode?: number = undefined;
-  headers: OutgoingHttpHeaders = {};
-}
