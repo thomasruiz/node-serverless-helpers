@@ -10,10 +10,9 @@ const isApi = (event: any): false | ((next: ApiHandler) => APIGatewayProxyHandle
   return event.pathParameters !== undefined ? apiHandler : false;
 };
 
-export const handle = (
-  next: (event: any, context?: Context) => any,
-  shouldThrowOnUnhandled = true,
-): Handler => {
+export type DefaultHandler = (event: any, context: any) => Promise<any>;
+
+export const handle = (next: ApiHandler | DefaultHandler, shouldThrowOnUnhandled = true): Handler => {
   if (callInit) {
     callInit = false;
     initPromise = init();
@@ -30,7 +29,7 @@ export const handle = (
     }
 
     if (!shouldThrowOnUnhandled) {
-      return next(event, context);
+      return (next as DefaultHandler)(event, context);
     }
 
     throwUnhandledEvent();
