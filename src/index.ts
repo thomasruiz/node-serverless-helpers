@@ -1,4 +1,6 @@
+export { ApiConfigCorsOptions, ApiConfigOptions, ConfigOptions, config, getConfig } from './config';
 export { register } from './init';
-export { handle } from './handling';
-export { ApiConfigOptions, ConfigOptions, config } from './config';
 export * from './validation';
+
+export { handle, DefaultHandler } from './handling';
+export * from './handling/api/types';

@@ -8,7 +8,7 @@ import {
 import { OutgoingHttpHeaders } from 'http';
 
 import { ApiConfigCorsOptions, getConfig } from '../../config';
-import { ApiHandler, ApiHandlerEvent, Response } from './types';
+import { ApiHandler, ApiHandlerEvent, MultiValueHeaders, Response, SingleValueHeaders } from './types';
 
 const normalize = (event: APIGatewayProxyEvent): ApiHandlerEvent => {
   const clonedEvent = Object.assign(event);
@@ -29,14 +29,6 @@ const normalize = (event: APIGatewayProxyEvent): ApiHandlerEvent => {
 const httpMethodToStatus = (method: string, statusCode?: number): number => {
   return statusCode || (method === 'POST' ? 201 : 200);
 };
-
-export interface MultiValueHeaders {
-  [header: string]: Array<boolean | number | string>;
-}
-
-export interface SingleValueHeaders {
-  [header: string]: boolean | number | string;
-}
 
 const singleHeaders = (event: ApiHandlerEvent, headers: OutgoingHttpHeaders): SingleValueHeaders => {
   const finalHeaders = Object.keys(headers)

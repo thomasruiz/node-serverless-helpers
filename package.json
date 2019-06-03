@@ -30,7 +30,7 @@
   ],
   "readme": "readme.md",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "rm -rf dist && tsc -p tsconfig.json",
     "test": "jest --silent",
     "test:coverage": "jest --coverage"
   },
