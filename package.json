@@ -39,14 +39,14 @@
     "joi": "^14.3.1"
   },
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.20",
-    "@types/jest": "^24.0.9",
-    "@types/joi": "^14.3.2",
-    "@types/node": "^11.10.4",
-    "jest": "^24.1.0",
-    "ts-jest": "^24.0.0",
-    "ts-node": "^8.0.2",
-    "tslint": "^5.13.1",
-    "typescript": "^3.3.3333"
+    "@types/aws-lambda": "^8.10.26",
+    "@types/jest": "^24.0.13",
+    "@types/joi": "^14.3.3",
+    "@types/node": "^11.13.13",
+    "jest": "^24.8.0",
+    "ts-jest": "^24.0.2",
+    "ts-node": "^8.2.0",
+    "tslint": "^5.17.0",
+    "typescript": "^3.5.1"
   }
 }
