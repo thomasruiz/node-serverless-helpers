@@ -1,7 +1,9 @@
 import { init } from '../init';
-import api from './api';
+import { apiHandler } from './api';
 import { handle } from './index';
 import Mock = jest.Mock;
+
+export type TestingHandler = (event?: any, context?: any, callback?: any) => any;
 
 jest.mock('../init');
 jest.mock('./api');
@@ -15,10 +17,10 @@ describe('handling', () => {
     });
 
     it('redirects to the api gateway handler correctly', async () => {
-      (api as Mock).mockReturnValue(() => expected);
+      (apiHandler as Mock).mockReturnValue(() => expected);
 
       const expected = {};
-      const handler = handle(async () => null);
+      const handler = handle(async () => null) as TestingHandler;
 
       const result = await handler({pathParameters: null});
 
@@ -27,7 +29,7 @@ describe('handling', () => {
 
     it('throws on unhandled events', async () => {
       let called = false;
-      const handler = handle(async () => called = true);
+      const handler = handle(async () => called = true) as TestingHandler;
 
       try {
         await handler({});
@@ -39,7 +41,7 @@ describe('handling', () => {
 
     it('does not throw on unhandled events when shouldThrowOnUnhandled = false', async () => {
       const expected = {};
-      const handler = handle(async () => expected, false);
+      const handler = handle(async () => expected, false) as TestingHandler;
 
       const result = await handler({});
 

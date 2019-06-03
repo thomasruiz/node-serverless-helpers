@@ -1,19 +1,19 @@
 import {
-    APIGatewayEvent,
-    APIGatewayProxyCallback,
-    APIGatewayProxyHandler,
-    APIGatewayProxyResult,
-    Context,
+  APIGatewayEvent,
+  APIGatewayProxyEvent,
+  APIGatewayProxyHandler,
+  APIGatewayProxyResult,
+  Context,
 } from 'aws-lambda';
 
-import { getConfig } from '../config';
+import { getConfig } from '../../config';
+import { ApiHandler, ApiHandlerEvent } from './types';
 
-export type ApiHandler = (event?: APIGatewayEvent, context?: Context, callback?: APIGatewayProxyCallback) => Promise<any>;
-
-const normalize = async (event: APIGatewayEvent) => {
+const normalize = (event: APIGatewayProxyEvent): ApiHandlerEvent => {
+  const clonedEvent = Object.assign(event);
   if (event.body) {
     try {
-      event.body = JSON.parse(event.body);
+      clonedEvent.body = JSON.parse(clonedEvent.body);
     } catch (e) {
       throw {
         statusCode: 400,
@@ -21,18 +21,15 @@ const normalize = async (event: APIGatewayEvent) => {
       };
     }
   }
+
+  return clonedEvent;
 };
 
 const httpMethodToStatus = (method: string): number => {
-  switch (method) {
-    case 'POST':
-      return 201;
-  }
-
-  return 200;
+  return method === 'POST' ? 201 : 200;
 };
 
-const format = async (event: APIGatewayEvent, content: any): Promise<APIGatewayProxyResult> => {
+const format = async (event: ApiHandlerEvent, content: any): Promise<APIGatewayProxyResult> => {
   if (!content) {
     return {statusCode: 204, body: ''};
   }
@@ -61,18 +58,17 @@ const formatError = async (err: any): Promise<APIGatewayProxyResult> => {
   }
 
   console.error(err);
-
   return {
     statusCode: err.statusCode || 500,
     body: JSON.stringify(err.body ? err.body : 'Internal Server Error'),
   };
 };
 
-export default (next: ApiHandler): APIGatewayProxyHandler => {
-  return async (event: APIGatewayEvent, context: Context, callback: APIGatewayProxyCallback): Promise<APIGatewayProxyResult> => {
+export const apiHandler = (next: ApiHandler): APIGatewayProxyHandler => {
+  return async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
     try {
-      await normalize(event);
-      return format(event, await next(event, context, callback));
+      const normalizedEvent = await normalize(event);
+      return format(normalizedEvent, await next(normalizedEvent, context));
     } catch (err) {
       return formatError(err);
     }

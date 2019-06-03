@@ -1,21 +1,19 @@
-import { APIGatewayProxyHandler, Callback, Context } from 'aws-lambda';
+import { APIGatewayProxyHandler, Callback, Context, Handler } from 'aws-lambda';
 
 import { init } from '../init';
-import api, { ApiHandler } from './api';
-
-export { ApiHandler } from './api';
+import { apiHandler, ApiHandler } from './api';
 
 let initPromise: Promise<any>;
 let callInit = true;
 
 const isApi = (event: any): false | ((next: ApiHandler) => APIGatewayProxyHandler) => {
-  return event.pathParameters !== undefined ? api : false;
+  return event.pathParameters !== undefined ? apiHandler : false;
 };
 
 export const handle = (
-  next: (event: any, context?: Context, callback?: Callback) => any,
+  next: (event: any, context?: Context) => any,
   shouldThrowOnUnhandled = true,
-): ((event: any, context?: Context, callback?: Callback) => Promise<any>) => {
+): Handler => {
   if (callInit) {
     callInit = false;
     initPromise = init();
@@ -31,13 +29,17 @@ export const handle = (
       }
     }
 
-    if (shouldThrowOnUnhandled) {
-      console.log('unhandled event');
-      const error = new Error('Unhandled event');
-      error.name = 'UnhandledEvent';
-      throw error;
-    } else {
-      return next(event, context, callback);
+    if (!shouldThrowOnUnhandled) {
+      return next(event, context);
     }
+
+    throwUnhandledEvent();
   };
+};
+
+const throwUnhandledEvent = () => {
+  console.log('unhandled event');
+  const error = new Error('Unhandled event');
+  error.name = 'UnhandledEvent';
+  throw error;
 };

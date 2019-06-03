@@ -1,8 +1,9 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { getConfig } from '../config';
-import api from './api';
 
-jest.mock('../config');
+import { getConfig } from '../../config';
+import { apiHandler } from './api';
+
+jest.mock('../../config');
 const mock = getConfig as jest.Mock;
 
 describe('handling', () => {
@@ -18,13 +19,13 @@ describe('handling', () => {
     it('parses request body correctly', async () => {
       expect.assertions(1);
       const body = {email: 'foo@example.com'};
-      api(async (event: APIGatewayProxyEvent): Promise<any> => {
+      apiHandler(async (event: APIGatewayProxyEvent): Promise<any> => {
         expect(event.body).toStrictEqual(body);
       })({body: JSON.stringify(body)} as any, defaultContext, defaultCallback);
     });
 
     it('throws a 400 Bad Request when request body is incorrect', async () => {
-      const response = await api(
+      const response = await apiHandler(
         async (): Promise<any> => null,
       )({body: 'not json'} as any, defaultContext, defaultCallback);
 
@@ -37,7 +38,7 @@ describe('handling', () => {
     it('returns a correct ApiGatewayProxyResponse', async () => {
       const body = {email: 'foo@example.com'};
 
-      const response = await api(async (): Promise<any> => {
+      const response = await apiHandler(async (): Promise<any> => {
         return body;
       })({} as any, defaultContext, defaultCallback);
 
@@ -48,7 +49,7 @@ describe('handling', () => {
     });
 
     it('returns a 201 when POST succeeds', async () => {
-      const response = await api(
+      const response = await apiHandler(
         async (): Promise<any> => ({}),
       )({httpMethod: 'POST'} as any, defaultContext, defaultCallback);
 
@@ -59,7 +60,7 @@ describe('handling', () => {
     });
 
     it('returns a 204 when response body is empty', async () => {
-      const response = await api(
+      const response = await apiHandler(
         async (): Promise<any> => null,
       )({} as any, defaultContext, defaultCallback);
 
@@ -72,7 +73,7 @@ describe('handling', () => {
     it('strips response body of configured blacklist', async () => {
       mock.mockReturnValue({api: {blacklist: ['password']}});
 
-      const response = await api(
+      const response = await apiHandler(
         async (): Promise<any> => ({password: 'password'}),
       )({} as any, defaultContext, defaultCallback);
 
@@ -85,7 +86,7 @@ describe('handling', () => {
     it('formats validation errors', async () => {
       const errorDetails = [{}];
 
-      const response = await api(
+      const response = await apiHandler(
         async (): Promise<any> => {
           throw {
             name: 'ValidationError',
@@ -101,7 +102,7 @@ describe('handling', () => {
     });
 
     it('throws a 500 when an error happens', async () => {
-      const response = await api(
+      const response = await apiHandler(
         async (): Promise<any> => {
           throw 'error';
         },
@@ -114,7 +115,7 @@ describe('handling', () => {
     });
 
     it('returns the given response if it has a statusCode and a body', async () => {
-      const response = await api(
+      const response = await apiHandler(
         async (): Promise<any> => {
           return {statusCode: 200, body: JSON.stringify('foo')};
         },
@@ -127,7 +128,7 @@ describe('handling', () => {
     });
 
     it('returns the given response if it has a statusCode 204', async () => {
-      const response = await api(
+      const response = await apiHandler(
         async (): Promise<any> => {
           return {statusCode: 204, body: null};
         },
