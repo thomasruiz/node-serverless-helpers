@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "dependencies": {
-    "node-serverless-helpers": "^0.0.1"
+    "node-serverless-helpers": "^2.0.0"
   },
   "devDependencies": {
     "serverless": "^1.32.0",
