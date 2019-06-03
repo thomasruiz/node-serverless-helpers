@@ -31,6 +31,8 @@ describe('handling', () => {
 
       expect(response).toStrictEqual({
         statusCode: 400,
+        headers: {},
+        multiValueHeaders: {},
         body: JSON.stringify('Bad Request'),
       });
     });
@@ -44,6 +46,8 @@ describe('handling', () => {
 
       expect(response).toStrictEqual({
         statusCode: 200,
+        headers: {},
+        multiValueHeaders: {},
         body: JSON.stringify(body),
       });
     });
@@ -55,6 +59,8 @@ describe('handling', () => {
 
       expect(response).toStrictEqual({
         statusCode: 201,
+        headers: {},
+        multiValueHeaders: {},
         body: JSON.stringify({}),
       });
     });
@@ -66,6 +72,8 @@ describe('handling', () => {
 
       expect(response).toStrictEqual({
         statusCode: 204,
+        headers: {},
+        multiValueHeaders: {},
         body: '',
       });
     });
@@ -79,6 +87,8 @@ describe('handling', () => {
 
       expect(response).toStrictEqual({
         statusCode: 200,
+        headers: {},
+        multiValueHeaders: {},
         body: JSON.stringify({}),
       });
     });
@@ -97,6 +107,8 @@ describe('handling', () => {
 
       expect(response).toStrictEqual({
         statusCode: 422,
+        headers: {},
+        multiValueHeaders: {},
         body: JSON.stringify({data: errorDetails}),
       });
     });
@@ -110,11 +122,13 @@ describe('handling', () => {
 
       expect(response).toStrictEqual({
         statusCode: 500,
+        headers: {},
+        multiValueHeaders: {},
         body: JSON.stringify('Internal Server Error'),
       });
     });
 
-    it('returns the given response if it has a statusCode and a body', async () => {
+    it('does not return the content directly anymore, even with statusCode', async () => {
       const response = await apiHandler(
         async (): Promise<any> => {
           return {statusCode: 200, body: JSON.stringify('foo')};
@@ -123,20 +137,12 @@ describe('handling', () => {
 
       expect(response).toStrictEqual({
         statusCode: 200,
-        body: JSON.stringify('foo'),
-      });
-    });
-
-    it('returns the given response if it has a statusCode 204', async () => {
-      const response = await apiHandler(
-        async (): Promise<any> => {
-          return {statusCode: 204, body: null};
-        },
-      )({} as any, defaultContext, defaultCallback);
-
-      expect(response).toStrictEqual({
-        statusCode: 204,
-        body: null,
+        headers: {},
+        multiValueHeaders: {},
+        body: JSON.stringify({
+          statusCode: 200,
+          body: '"foo"',
+        }),
       });
     });
   });

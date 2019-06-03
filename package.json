@@ -31,7 +31,7 @@
   "readme": "readme.md",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "test": "jest",
+    "test": "jest --silent",
     "test:coverage": "jest --coverage"
   },
   "dependencies": {

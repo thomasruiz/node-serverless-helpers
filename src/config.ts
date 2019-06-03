@@ -1,8 +1,18 @@
 import { all as merge } from 'deepmerge';
 
-export interface ApiConfigOptions {
-  blacklist: string[];
+export interface ApiConfigCorsOptions {
+  origin: string;
+  credentials: boolean;
+  methods: string[];
+  allowHeaders: string[];
+  exposeHeaders: string[];
+  maxAge: string;
 }
+
+export interface ApiConfigOptions {
+  cors: boolean | ApiConfigCorsOptions;
+  blacklist: string[];
+};
 
 export interface ConfigOptions {
   api: ApiConfigOptions;
@@ -11,6 +21,7 @@ export interface ConfigOptions {
 let internalConfig: ConfigOptions = {
   api: {
     blacklist: [],
+    cors: false,
   },
 };
 
