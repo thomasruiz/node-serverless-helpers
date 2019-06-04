@@ -37,11 +37,13 @@ const singleHeaders = (event: ApiHandlerEvent, headers: OutgoingHttpHeaders): Si
 
   const cors = (getConfig().api.cors === true ? {} : getConfig().api.cors) as ApiConfigCorsOptions;
   if (cors) {
+    const allowedMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'].join(', ');
     const exposedHeaders = Object.keys(headers)
       .filter((v, i, a) => a.indexOf(v) === i)
       .join(', ');
 
     finalHeaders['Access-Control-Allow-Origin'] = cors.origin || event.headers.host;
+    finalHeaders['Access-Control-Allow-Methods'] = cors.methods || allowedMethods;
     finalHeaders['Access-Control-Expose-Headers'] = cors.exposeHeaders || exposedHeaders;
     finalHeaders['Access-Control-Allow-Headers'] = cors.allowHeaders || Object.keys(event.headers).join(', ');
   }

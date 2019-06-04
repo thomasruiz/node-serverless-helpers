@@ -106,6 +106,7 @@ describe('handling', () => {
         statusCode: 204,
         headers: {
           'Access-Control-Allow-Headers': 'host, x-foo, x-bar',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD',
           'Access-Control-Expose-Headers': 'x-baz',
           'Access-Control-Allow-Origin': 'localhost',
           'x-baz': 'baz',
