@@ -5,7 +5,7 @@ import { TestingHandler } from '../index.spec';
 import { apiHandler } from './api';
 
 import 'jest-extended';
-import { callAfterMiddleware, callBeforeMiddleware } from '../middleware';
+import { callAfterMiddleware, callBeforeMiddleware, callErrorHandlers } from '../middleware';
 
 jest.mock('../../config');
 jest.mock('../middleware');
@@ -160,6 +160,16 @@ describe('handling', () => {
         multiValueHeaders: {},
         body: JSON.stringify('Internal Server Error'),
       });
+    });
+
+    it('calls error handlers when an error happens', async () => {
+      await (apiHandler(
+        async (): Promise<any> => {
+          throw 'error';
+        },
+      ) as TestingHandler)({});
+
+      expect(callErrorHandlers).toHaveBeenCalledTimes(1);
     });
 
     it('does not return the content directly anymore, even with statusCode', async () => {

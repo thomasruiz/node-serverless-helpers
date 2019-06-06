@@ -19,3 +19,4 @@ export type ApiHandleContext = Context;
 export type ApiHandler = (event: ApiHandlerEvent, response: Response, context: ApiHandleContext) => Promise<any>;
 export type ApiBeforeMiddleware = (event: ApiHandlerEvent, context: ApiHandleContext) => Promise<void>;
 export type ApiAfterMiddleware = (event: ApiHandlerEvent, result: APIGatewayProxyResult) => Promise<void>;
+export type ApiErrorHandler = (event: ApiHandlerEvent, err: Error, result: APIGatewayProxyResult) => Promise<void>;

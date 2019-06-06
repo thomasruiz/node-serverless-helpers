@@ -1,17 +1,50 @@
 import 'jest-extended';
 
-import { after, before, callAfterMiddleware, callBeforeMiddleware, HandlingType, MiddlewareList } from './middleware';
+import {
+  after,
+  before,
+  callAfterMiddleware,
+  callBeforeMiddleware,
+  callErrorHandlers,
+  handleError,
+  HandlingType,
+  MiddlewareList,
+} from './middleware';
 
 describe('handling', () => {
   describe('middleware', () => {
     const testMiddlewareTypes: Array<keyof MiddlewareList> = ['__ALWAYS__', 'ApiGateway'];
     testMiddlewareTypes.forEach((key: HandlingType) => {
+      const fct = async () => {
+      };
+
       it(`allows registering for ${key}`, () => {
-        expect(() => before(key, [async () => {
-        }])).not.toThrow();
-        expect(() => after(key, [async () => {
-        }])).not.toThrow();
+        expect(() => before(key, [fct])).not.toThrow();
+        expect(() => after(key, [fct])).not.toThrow();
+        expect(() => handleError(key, [fct])).not.toThrow();
       });
+    });
+
+    it('registers a middleware without calling it', () => {
+      const middleware = jest.fn();
+
+      before('ApiGateway', [middleware]);
+      expect(middleware).not.toBeCalled();
+
+      after('ApiGateway', [middleware]);
+      expect(middleware).not.toBeCalled();
+    });
+
+    it('runs error handlers correctly', async () => {
+      const handlers = [jest.fn(), jest.fn()];
+
+      handleError('ApiGateway', [handlers[0]]);
+      handleError([handlers[1]]);
+
+      await callErrorHandlers('ApiGateway', []);
+
+      expect(handlers[0]).toHaveBeenCalledBefore(handlers[1]);
+      expect(handlers[1]).toHaveBeenCalledAfter(handlers[0]);
     });
 
     it('runs middlewares in the correct order', async () => {
@@ -40,16 +73,6 @@ describe('handling', () => {
       [0, 1, 2].forEach((i) => expect(handlers[3]).toHaveBeenCalledAfter(handlers[i]));
       [0, 1].forEach((i) => expect(handlers[2]).toHaveBeenCalledAfter(handlers[i]));
       [0].forEach((i) => expect(handlers[1]).toHaveBeenCalledAfter(handlers[i]));
-    });
-
-    it('registers a middleware without calling it', () => {
-      const middleware = jest.fn();
-
-      before('ApiGateway', [middleware]);
-      expect(middleware).not.toBeCalled();
-
-      after('ApiGateway', [middleware]);
-      expect(middleware).not.toBeCalled();
     });
   });
 });

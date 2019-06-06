@@ -10,14 +10,14 @@ import { OutgoingHttpHeaders } from 'http';
 import { ApiConfigCorsOptions, getConfig } from '../../config';
 import {
   ApiAfterMiddleware,
-  ApiBeforeMiddleware,
+  ApiBeforeMiddleware, ApiErrorHandler,
   ApiHandler,
   ApiHandlerEvent,
   MultiValueHeaders,
   Response,
   SingleValueHeaders,
 } from './types';
-import { callAfterMiddleware, callBeforeMiddleware } from '../middleware';
+import { callAfterMiddleware, callBeforeMiddleware, callErrorHandlers } from '../middleware';
 
 const normalize = (event: APIGatewayProxyEvent): ApiHandlerEvent => {
   const clonedEvent = Object.assign(event);
@@ -116,7 +116,10 @@ export const apiHandler = (next: ApiHandler): APIGatewayProxyHandler => {
 
       return result;
     } catch (err) {
-      return formatError(event, response, err);
+      const result = formatError(event, response, err);
+      await callErrorHandlers<ApiErrorHandler>('ApiGateway', [event, err, result]);
+
+      return result;
     }
   };
 };
