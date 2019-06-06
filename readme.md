@@ -64,7 +64,6 @@ The important part is the `handle` function that does 3 things.
 ## TODO
 
  - Global logging system
- - Implement middlewares for API
  - Implement more handlers
  - Remove all console.logs
 

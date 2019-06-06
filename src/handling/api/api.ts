@@ -8,7 +8,16 @@ import {
 import { OutgoingHttpHeaders } from 'http';
 
 import { ApiConfigCorsOptions, getConfig } from '../../config';
-import { ApiHandler, ApiHandlerEvent, MultiValueHeaders, Response, SingleValueHeaders } from './types';
+import {
+  ApiAfterMiddleware,
+  ApiBeforeMiddleware,
+  ApiHandler,
+  ApiHandlerEvent,
+  MultiValueHeaders,
+  Response,
+  SingleValueHeaders,
+} from './types';
+import { callAfterMiddleware, callBeforeMiddleware } from '../middleware';
 
 const normalize = (event: APIGatewayProxyEvent): ApiHandlerEvent => {
   const clonedEvent = Object.assign(event);
@@ -100,7 +109,12 @@ export const apiHandler = (next: ApiHandler): APIGatewayProxyHandler => {
     const response = new Response();
     try {
       const normalizedEvent = await normalize(event);
-      return format(normalizedEvent, response, await next(normalizedEvent, response, context));
+      await callBeforeMiddleware<ApiBeforeMiddleware>('ApiGateway', [normalizedEvent, context])
+
+      const result = format(normalizedEvent, response, await next(normalizedEvent, response, context));
+      await callAfterMiddleware<ApiAfterMiddleware>('ApiGateway', [normalizedEvent, result]);
+
+      return result;
     } catch (err) {
       return formatError(event, response, err);
     }

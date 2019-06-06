@@ -1,33 +1,44 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
 
 import { getConfig } from '../../config';
+import { TestingHandler } from '../index.spec';
 import { apiHandler } from './api';
 
+import 'jest-extended';
+import { callAfterMiddleware, callBeforeMiddleware } from '../middleware';
+
 jest.mock('../../config');
+jest.mock('../middleware');
 const mock = getConfig as jest.Mock;
 
 describe('handling', () => {
-  const defaultContext: any = {};
-  const defaultCallback: any = () => null;
-
   beforeEach(() => {
     jest.resetAllMocks();
     mock.mockReturnValue({api: {cors: false, blacklist: []}});
   });
 
   describe('api', () => {
+    it('runs middlewares before and after the handler', async () => {
+      const handler = jest.fn();
+
+      await (apiHandler(handler) as TestingHandler)({});
+
+      expect(handler).toHaveBeenCalledAfter(callBeforeMiddleware as jest.Mock);
+      expect(handler).toHaveBeenCalledBefore(callAfterMiddleware as jest.Mock);
+    });
+
     it('parses request body correctly', async () => {
       expect.assertions(1);
       const body = {email: 'foo@example.com'};
-      apiHandler(async (event: APIGatewayProxyEvent): Promise<any> => {
+      (apiHandler(async (event: APIGatewayProxyEvent): Promise<any> => {
         expect(event.body).toStrictEqual(body);
-      })({body: JSON.stringify(body)} as any, defaultContext, defaultCallback);
+      }) as TestingHandler)({body: JSON.stringify(body)});
     });
 
     it('throws a 400 Bad Request when request body is incorrect', async () => {
-      const response = await apiHandler(
+      const response = await (apiHandler(
         async (): Promise<any> => null,
-      )({body: 'not json'} as any, defaultContext, defaultCallback);
+      ) as TestingHandler)({body: 'not json'});
 
       expect(response).toStrictEqual({
         statusCode: 400,
@@ -40,9 +51,9 @@ describe('handling', () => {
     it('returns a correct ApiGatewayProxyResponse', async () => {
       const body = {email: 'foo@example.com'};
 
-      const response = await apiHandler(async (): Promise<any> => {
+      const response = await (apiHandler(async (): Promise<any> => {
         return body;
-      })({} as any, defaultContext, defaultCallback);
+      }) as TestingHandler)({});
 
       expect(response).toStrictEqual({
         statusCode: 200,
@@ -53,9 +64,9 @@ describe('handling', () => {
     });
 
     it('returns a 201 when POST succeeds', async () => {
-      const response = await apiHandler(
+      const response = await (apiHandler(
         async (): Promise<any> => ({}),
-      )({httpMethod: 'POST'} as any, defaultContext, defaultCallback);
+      ) as TestingHandler)({httpMethod: 'POST'});
 
       expect(response).toStrictEqual({
         statusCode: 201,
@@ -66,9 +77,9 @@ describe('handling', () => {
     });
 
     it('returns a 204 when response body is empty', async () => {
-      const response = await apiHandler(
+      const response = await (apiHandler(
         async (): Promise<any> => null,
-      )({} as any, defaultContext, defaultCallback);
+      ) as TestingHandler)({});
 
       expect(response).toStrictEqual({
         statusCode: 204,
@@ -81,9 +92,9 @@ describe('handling', () => {
     it('strips response body of configured blacklist', async () => {
       mock.mockReturnValue({api: {blacklist: ['password']}});
 
-      const response = await apiHandler(
+      const response = await (apiHandler(
         async (): Promise<any> => ({password: 'password'}),
-      )({} as any, defaultContext, defaultCallback);
+      ) as TestingHandler)({});
 
       expect(response).toStrictEqual({
         statusCode: 200,
@@ -97,10 +108,10 @@ describe('handling', () => {
       mock.mockReturnValue({api: {cors: true}});
 
       const headers = {host: 'localhost', 'x-foo': 'foo', 'x-bar': 'bar'};
-      const response = await apiHandler(async (_, response): Promise<any> => {
+      const response = await (apiHandler(async (_, response): Promise<any> => {
         response.headers['x-baz'] = 'baz';
         return null;
-      })({headers} as any, defaultContext, defaultCallback);
+      }) as TestingHandler)({headers});
 
       expect(response).toStrictEqual({
         statusCode: 204,
@@ -119,14 +130,14 @@ describe('handling', () => {
     it('formats validation errors', async () => {
       const errorDetails = [{}];
 
-      const response = await apiHandler(
+      const response = await (apiHandler(
         async (): Promise<any> => {
           throw {
             name: 'ValidationError',
             details: errorDetails,
           };
         },
-      )({} as any, defaultContext, defaultCallback);
+      ) as TestingHandler)({});
 
       expect(response).toStrictEqual({
         statusCode: 422,
@@ -137,11 +148,11 @@ describe('handling', () => {
     });
 
     it('throws a 500 when an error happens', async () => {
-      const response = await apiHandler(
+      const response = await (apiHandler(
         async (): Promise<any> => {
           throw 'error';
         },
-      )({} as any, defaultContext, defaultCallback);
+      ) as TestingHandler)({});
 
       expect(response).toStrictEqual({
         statusCode: 500,
@@ -152,11 +163,11 @@ describe('handling', () => {
     });
 
     it('does not return the content directly anymore, even with statusCode', async () => {
-      const response = await apiHandler(
+      const response = await (apiHandler(
         async (): Promise<any> => {
           return {statusCode: 200, body: JSON.stringify('foo')};
         },
-      )({} as any, defaultContext, defaultCallback);
+      ) as TestingHandler)({});
 
       expect(response).toStrictEqual({
         statusCode: 200,

@@ -11,8 +11,8 @@ jest.mock('./api');
 describe('handling', () => {
   describe('handle', () => {
     it('calls init function once', async () => {
-      handle(() => null);
-      handle(() => null);
+      handle(async () => null);
+      handle(async () => null);
       expect((init as Mock).mock.calls.length).toBe(1);
     });
 
@@ -28,6 +28,7 @@ describe('handling', () => {
     });
 
     it('throws on unhandled events', async () => {
+      expect.assertions(2);
       let called = false;
       const handler = handle(async () => called = true) as TestingHandler;
 
