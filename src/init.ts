@@ -1,9 +1,9 @@
 const globalInitializers: Function[] = [];
 
-export const init = async () => {
+export const runInitializers = async () => {
   return Promise.all(globalInitializers.map(initializer => initializer()));
 };
 
-export const register = (initializer: Function) => {
+export const init = (initializer: Function) => {
   globalInitializers.push(initializer);
 };

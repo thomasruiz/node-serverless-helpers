@@ -1,4 +1,4 @@
-import { init } from '../init';
+import { runInitializers } from '../init';
 import { apiHandler } from './api';
 import { handle } from './index';
 import Mock = jest.Mock;
@@ -10,10 +10,10 @@ jest.mock('./api');
 
 describe('handling', () => {
   describe('handle', () => {
-    it('calls init function once', async () => {
+    it('calls runInitializers function once', async () => {
       handle(async () => null);
       handle(async () => null);
-      expect((init as Mock).mock.calls.length).toBe(1);
+      expect((runInitializers as Mock).mock.calls.length).toBe(1);
     });
 
     it('redirects to the api gateway handler correctly', async () => {

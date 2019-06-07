@@ -1,18 +1,18 @@
-import { init, register } from './init';
+import { runInitializers, init } from './init';
 
 describe('init', () => {
-  it('registers init functions without calling them', () => {
+  it('registers runInitializers functions without calling them', () => {
     let called = false;
-    register(async () => called = true);
+    init(async () => called = true);
 
     expect(called).toBe(false);
   });
 
-  it('calls registered init functions', async () => {
+  it('calls registered runInitializers functions', async () => {
     let called = false;
-    register(async () => called = true);
+    init(async () => called = true);
 
-    await init();
+    await runInitializers();
 
     expect(called).toBe(true);
   });

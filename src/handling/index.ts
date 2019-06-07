@@ -1,6 +1,6 @@
 import { APIGatewayProxyHandler, Callback, Context, Handler } from 'aws-lambda';
 
-import { init } from '../init';
+import { runInitializers } from '../init';
 import { apiHandler, ApiHandler } from './api';
 
 let initPromise: Promise<any>;
@@ -15,7 +15,7 @@ export type DefaultHandler = (event: any, context: any) => Promise<any>;
 export const handle = (next: ApiHandler | DefaultHandler, shouldThrowOnUnhandled = true): Handler => {
   if (callInit) {
     callInit = false;
-    initPromise = init();
+    initPromise = runInitializers();
   }
 
   return async (event: any, context: Context, callback: Callback): Promise<any> => {
