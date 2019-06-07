@@ -1,5 +1,8 @@
 # Changelog
 
+## v3.0.1
+- Fix: errors can now have a custom status code in api handling
+
 ## v3.0.0
 - Added middleware stack
 - Added error handling stack
