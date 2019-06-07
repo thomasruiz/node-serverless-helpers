@@ -99,7 +99,7 @@ const formatError = (event: APIGatewayProxyEvent, response: Response, err: any):
       return format(event, response, 'Bad Request');
     default:
       console.error(err);
-      response.statusCode = 500;
+      response.statusCode = err.statusCode || 500;
       return format(event, response, err.body || 'Internal Server Error');
   }
 };

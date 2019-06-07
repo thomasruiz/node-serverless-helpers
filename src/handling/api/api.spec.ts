@@ -162,6 +162,21 @@ describe('handling', () => {
       });
     });
 
+    it('returns the correct status code for an error', async () => {
+      const response = await (apiHandler(
+        async (): Promise<any> => {
+          throw {body: 'error', statusCode: 400};
+        },
+      ) as TestingHandler)({});
+
+      expect(response).toStrictEqual({
+        statusCode: 400,
+        headers: {},
+        multiValueHeaders: {},
+        body: JSON.stringify('error'),
+      });
+    });
+
     it('calls error handlers when an error happens', async () => {
       await (apiHandler(
         async (): Promise<any> => {
