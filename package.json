@@ -1,6 +1,6 @@
 {
   "name": "node-serverless-helpers",
-  "version": "2.0.1",
+  "version": "3.0.0",
   "description": "Helpers to simplify nodejs code on FASS environments",
   "author": "Thomas Ruiz <contact@thomasruiz.eu>",
   "license": "ISC",
