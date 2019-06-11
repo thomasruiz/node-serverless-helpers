@@ -51,7 +51,7 @@ const singleHeaders = (event: ApiHandlerEvent, headers: OutgoingHttpHeaders): Si
       .filter((v, i, a) => a.indexOf(v) === i)
       .join(', ');
 
-    finalHeaders['Access-Control-Allow-Origin'] = cors.origin || event.headers.host;
+    finalHeaders['Access-Control-Allow-Origin'] = cors.origin || event.headers.origin;
     finalHeaders['Access-Control-Allow-Methods'] = cors.methods || allowedMethods;
     finalHeaders['Access-Control-Expose-Headers'] = cors.exposeHeaders || exposedHeaders;
     finalHeaders['Access-Control-Allow-Headers'] = cors.allowHeaders || Object.keys(event.headers).join(', ');
