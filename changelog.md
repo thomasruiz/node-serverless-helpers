@@ -1,7 +1,9 @@
 # Changelog
 
-## v3.0.2
+## v3.0.3
 - Fix: cors origin header takes the wrong header
+
+## v3.0.2 -- skipped
 
 ## v3.0.1
 - Fix: errors can now have a custom status code in api handling
