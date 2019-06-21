@@ -147,6 +147,78 @@ describe('handling', () => {
       });
     });
 
+    it('formats forbidden errors', async () => {
+      const response = await (apiHandler(
+        async (): Promise<any> => {
+          throw {
+            name: 'ForbiddenError',
+          };
+        },
+      ) as TestingHandler)({});
+
+      expect(response).toStrictEqual({
+        statusCode: 403,
+        headers: {},
+        multiValueHeaders: {},
+        body: JSON.stringify('Forbidden'),
+      });
+    });
+
+    it('formats forbidden errors with additional details if provided', async () => {
+      const errorDetails = {reason: 'You are not allowed to do this. Only Chuck Norris can.'};
+      const response = await (apiHandler(
+        async (): Promise<any> => {
+          throw {
+            name: 'ForbiddenError',
+            details: errorDetails,
+          };
+        },
+      ) as TestingHandler)({});
+
+      expect(response).toStrictEqual({
+        statusCode: 403,
+        headers: {},
+        multiValueHeaders: {},
+        body: JSON.stringify({data: errorDetails}),
+      });
+    });
+
+    it('formats bad request errors', async () => {
+      const response = await (apiHandler(
+        async (): Promise<any> => {
+          throw {
+            name: 'BadRequestError',
+          };
+        },
+      ) as TestingHandler)({});
+
+      expect(response).toStrictEqual({
+        statusCode: 400,
+        headers: {},
+        multiValueHeaders: {},
+        body: JSON.stringify('Bad Request'),
+      });
+    });
+
+    it('formats bad request errors with additional details if provided', async () => {
+      const errorDetails = 'You can\'t turn a Smurf red. Smurf are BLUE.';
+      const response = await (apiHandler(
+        async (): Promise<any> => {
+          throw {
+            name: 'BadRequestError',
+            details: errorDetails,
+          };
+        },
+      ) as TestingHandler)({});
+
+      expect(response).toStrictEqual({
+        statusCode: 400,
+        headers: {},
+        multiValueHeaders: {},
+        body: JSON.stringify({data: errorDetails}),
+      });
+    });
+
     it('throws a 500 when an error happens', async () => {
       const response = await (apiHandler(
         async (): Promise<any> => {
