@@ -96,10 +96,10 @@ const formatError = (event: APIGatewayProxyEvent, response: Response, err: any):
       return format(event, response, {data: err.details});
     case 'BadRequestError':
       response.statusCode = 400;
-      return format(event, response, 'Bad Request');
+      return format(event, response, err.details ? {data: err.details} : 'Bad Request');
     case 'ForbiddenError':
       response.statusCode = 403;
-      return format(event, response, 'Forbidden');
+      return format(event, response, err.details ? {data: err.details} : 'Forbidden');
     default:
       console.error(err);
       response.statusCode = err.statusCode || 500;
