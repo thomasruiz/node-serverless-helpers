@@ -147,6 +147,23 @@ describe('handling', () => {
       });
     });
 
+    it('formats forbidden errors', async () => {
+      const response = await (apiHandler(
+        async (): Promise<any> => {
+          throw {
+            name: 'ForbiddenError',
+          };
+        },
+      ) as TestingHandler)({});
+
+      expect(response).toStrictEqual({
+        statusCode: 403,
+        headers: {},
+        multiValueHeaders: {},
+        body: JSON.stringify('Forbidden'),
+      });
+    });
+
     it('throws a 500 when an error happens', async () => {
       const response = await (apiHandler(
         async (): Promise<any> => {
