@@ -1,5 +1,8 @@
 # Changelog
 
+## v3.0.5
+- Chore: Update dependencies
+
 ## v3.0.4
 - Feat: Added 403 Forbidden error in api handler
 - Feat: Added details to both 400 and 403 errors

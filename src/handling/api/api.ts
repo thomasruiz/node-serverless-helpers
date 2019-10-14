@@ -8,16 +8,17 @@ import {
 import { OutgoingHttpHeaders } from 'http';
 
 import { ApiConfigCorsOptions, getConfig } from '../../config';
+import { callAfterMiddleware, callBeforeMiddleware, callErrorHandlers } from '../middleware';
 import {
   ApiAfterMiddleware,
-  ApiBeforeMiddleware, ApiErrorHandler,
+  ApiBeforeMiddleware,
+  ApiErrorHandler,
   ApiHandler,
   ApiHandlerEvent,
   MultiValueHeaders,
   Response,
   SingleValueHeaders,
 } from './types';
-import { callAfterMiddleware, callBeforeMiddleware, callErrorHandlers } from '../middleware';
 
 const normalize = (event: APIGatewayProxyEvent): ApiHandlerEvent => {
   const clonedEvent = Object.assign(event);
@@ -44,26 +45,30 @@ const singleHeaders = (event: ApiHandlerEvent, headers: OutgoingHttpHeaders): Si
     .filter((k: string) => ['boolean', 'string', 'number'].indexOf(typeof headers[k]) > -1)
     .reduce((p: SingleValueHeaders, k: string) => Object.assign(p, {[k]: headers[k]}), {});
 
-  const cors = (getConfig().api.cors === true ? {} : getConfig().api.cors) as ApiConfigCorsOptions;
+  const cors = getConfig().api.cors as ApiConfigCorsOptions;
   if (cors) {
-    const allowedMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'].join(', ');
-    const exposedHeaders = Object.keys(headers)
-      .filter((v, i, a) => a.indexOf(v) === i)
-      .join(', ');
-
     finalHeaders['Access-Control-Allow-Origin'] = cors.origin || event.headers.origin;
-    finalHeaders['Access-Control-Allow-Methods'] = cors.methods || allowedMethods;
-    finalHeaders['Access-Control-Expose-Headers'] = cors.exposeHeaders || exposedHeaders;
-    finalHeaders['Access-Control-Allow-Headers'] = cors.allowHeaders || Object.keys(event.headers).join(', ');
   }
 
   return finalHeaders;
 };
 
 const multipleHeaders = (event: ApiHandlerEvent, headers: OutgoingHttpHeaders): MultiValueHeaders => {
-  return Object.keys(headers)
+  const finalHeaders = Object.keys(headers)
     .filter((k: string) => ['boolean', 'string', 'number'].indexOf(typeof headers[k]) === -1)
     .reduce((p: MultiValueHeaders, k: string) => Object.assign(p, {[k]: headers[k]}), {});
+
+  const cors = getConfig().api.cors as ApiConfigCorsOptions;
+  if (cors) {
+    const allowedMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'];
+    const exposedHeaders = Object.keys(headers).filter((v, i, a) => a.indexOf(v) === i);
+
+    finalHeaders['Access-Control-Allow-Methods'] = cors.methods || allowedMethods;
+    finalHeaders['Access-Control-Expose-Headers'] = cors.exposeHeaders || exposedHeaders;
+    finalHeaders['Access-Control-Allow-Headers'] = cors.allowHeaders || Object.keys(event.headers);
+  }
+
+  return finalHeaders;
 };
 
 const format = (event: ApiHandlerEvent, response: Response, content: any): APIGatewayProxyResult => {
@@ -112,7 +117,7 @@ export const apiHandler = (next: ApiHandler): APIGatewayProxyHandler => {
     const response = new Response();
     try {
       const normalizedEvent = await normalize(event);
-      await callBeforeMiddleware<ApiBeforeMiddleware>('ApiGateway', [normalizedEvent, context])
+      await callBeforeMiddleware<ApiBeforeMiddleware>('ApiGateway', [normalizedEvent, context]);
 
       const result = format(normalizedEvent, response, await next(normalizedEvent, response, context));
       await callAfterMiddleware<ApiAfterMiddleware>('ApiGateway', [normalizedEvent, result]);
