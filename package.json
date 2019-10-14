@@ -1,5 +1,6 @@
 {
-  "name": "node-serverless-helpers", "version": "3.0.4",
+  "name": "node-serverless-helpers",
+  "version": "3.0.5",
   "description": "Helpers to simplify nodejs code on FASS environments",
   "author": "Thomas Ruiz <contact@thomasruiz.eu>",
   "license": "ISC",
@@ -36,19 +37,19 @@
     "test:coverage": "jest --coverage"
   },
   "dependencies": {
-    "deepmerge": "^3.2.0",
+    "deepmerge": "^3.3.0",
     "joi": "^14.3.1"
   },
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.26",
-    "@types/jest": "^24.0.13",
+    "@types/aws-lambda": "^8.10.33",
+    "@types/jest": "^24.0.18",
     "@types/joi": "^14.3.3",
-    "@types/node": "^11.13.13",
-    "jest": "^24.8.0",
-    "jest-extended": "^0.11.1",
-    "ts-jest": "^24.0.2",
-    "ts-node": "^8.2.0",
-    "tslint": "^5.17.0",
-    "typescript": "^3.5.1"
+    "@types/node": "^10.14.21",
+    "jest": "^24.9.0",
+    "jest-extended": "^0.11.2",
+    "ts-jest": "^24.1.0",
+    "ts-node": "^8.4.1",
+    "tslint": "^5.20.0",
+    "typescript": "^3.6.4"
   }
 }

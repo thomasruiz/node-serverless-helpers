@@ -1,11 +1,11 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
 
+import 'jest-extended';
+
 import { getConfig } from '../../config';
 import { TestingHandler } from '../index.spec';
-import { apiHandler } from './api';
-
-import 'jest-extended';
 import { callAfterMiddleware, callBeforeMiddleware, callErrorHandlers } from '../middleware';
+import { apiHandler } from './api';
 
 jest.mock('../../config');
 jest.mock('../middleware');
@@ -116,13 +116,14 @@ describe('handling', () => {
       expect(response).toStrictEqual({
         statusCode: 204,
         headers: {
-          'Access-Control-Allow-Headers': 'origin, x-foo, x-bar',
-          'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD',
-          'Access-Control-Expose-Headers': 'x-baz',
           'Access-Control-Allow-Origin': 'localhost',
           'x-baz': 'baz',
         },
-        multiValueHeaders: {},
+        multiValueHeaders: {
+          'Access-Control-Allow-Headers': ['origin', 'x-foo', 'x-bar'],
+          'Access-Control-Allow-Methods': ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
+          'Access-Control-Expose-Headers': ['x-baz'],
+        },
         body: '',
       });
     });
