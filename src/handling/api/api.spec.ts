@@ -76,7 +76,20 @@ describe('handling', () => {
       });
     });
 
-    it('returns a 204 when response body is empty', async () => {
+    it('returns a 201 when response body is empty and request method is POST', async () => {
+      const response = await (apiHandler(
+        async (): Promise<any> => null,
+      ) as TestingHandler)({httpMethod: 'POST'});
+
+      expect(response).toStrictEqual({
+        statusCode: 201,
+        headers: {},
+        multiValueHeaders: {},
+        body: '',
+      });
+    });
+
+   it('returns a 204 when response body is empty', async () => {
       const response = await (apiHandler(
         async (): Promise<any> => null,
       ) as TestingHandler)({});

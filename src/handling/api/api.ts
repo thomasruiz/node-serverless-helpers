@@ -78,7 +78,7 @@ const format = (event: ApiHandlerEvent, response: Response, content: any): APIGa
     return {
       headers,
       multiValueHeaders,
-      statusCode: 204,
+      statusCode: event.httpMethod === 'POST' ? 201 : 204,
       body: '',
     };
   }
