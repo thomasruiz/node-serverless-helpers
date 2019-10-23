@@ -74,7 +74,7 @@ const multipleHeaders = (event: ApiHandlerEvent, headers: OutgoingHttpHeaders): 
 const format = (event: ApiHandlerEvent, response: Response, content: any): APIGatewayProxyResult => {
   const headers = singleHeaders(event, response.headers);
   const multiValueHeaders = multipleHeaders(event, response.headers);
-  if (!content) {
+  if (content === null || content === undefined || content === '') {
     return {
       headers,
       multiValueHeaders,

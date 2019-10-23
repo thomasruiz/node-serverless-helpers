@@ -78,6 +78,21 @@ describe('handling', () => {
 
     it('returns a 204 when response body is empty', async () => {
       const response = await (apiHandler(
+        async (): Promise<any> => {
+          // empty
+        },
+      ) as TestingHandler)({});
+
+      expect(response).toStrictEqual({
+        statusCode: 204,
+        headers: {},
+        multiValueHeaders: {},
+        body: '',
+      });
+    });
+
+    it('returns a 204 when response body is null', async () => {
+      const response = await (apiHandler(
         async (): Promise<any> => null,
       ) as TestingHandler)({});
 
@@ -86,6 +101,45 @@ describe('handling', () => {
         headers: {},
         multiValueHeaders: {},
         body: '',
+      });
+    });
+
+    it('returns a 204 when response body is undefined', async () => {
+      const response = await (apiHandler(
+        async (): Promise<any> => undefined,
+      ) as TestingHandler)({});
+
+      expect(response).toStrictEqual({
+        statusCode: 204,
+        headers: {},
+        multiValueHeaders: {},
+        body: '',
+      });
+    });
+
+     it('returns a 204 when response body is an empty string', async () => {
+      const response = await (apiHandler(
+        async (): Promise<any> => '',
+      ) as TestingHandler)({});
+
+      expect(response).toStrictEqual({
+        statusCode: 204,
+        headers: {},
+        multiValueHeaders: {},
+        body: '',
+      });
+    });
+
+   it('does NOT return 204 when response body is false', async () => {
+      const response = await (apiHandler(
+        async (): Promise<any> => false,
+      ) as TestingHandler)({});
+
+      expect(response).toStrictEqual({
+        statusCode: 200,
+        headers: {},
+        multiValueHeaders: {},
+        body: 'false',
       });
     });
 
