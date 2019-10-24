@@ -1,5 +1,8 @@
 # Changelog
 
+## v4.0.0
+- Feat: Returning empty response on POST is now 201
+
 ## v3.0.5
 - Chore: Update dependencies
 
