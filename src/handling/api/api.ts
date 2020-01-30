@@ -8,17 +8,19 @@ import {
 import { OutgoingHttpHeaders } from 'http';
 
 import { ApiConfigCorsOptions, getConfig } from '../../config';
+import { callAfterMiddleware, callBeforeMiddleware, callErrorHandlers } from '../middleware';
 import {
   ApiAfterMiddleware,
-  ApiBeforeMiddleware, ApiErrorHandler,
+  ApiBeforeMiddleware,
+  ApiErrorHandler,
   ApiHandler,
   ApiHandlerEvent,
   MultiValueHeaders,
   Response,
   SingleValueHeaders,
 } from './types';
-import { callAfterMiddleware, callBeforeMiddleware, callErrorHandlers } from '../middleware';
 import {log} from '../../debug';
+
 
 const normalize = (event: APIGatewayProxyEvent): ApiHandlerEvent => {
   log.debug('[API] Normalizing event');
@@ -47,27 +49,31 @@ const singleHeaders = (event: ApiHandlerEvent, headers: OutgoingHttpHeaders): Si
   const finalHeaders = Object.keys(headers)
     .filter((k: string) => ['boolean', 'string', 'number'].indexOf(typeof headers[k]) > -1)
     .reduce((p: SingleValueHeaders, k: string) => Object.assign(p, {[k]: headers[k]}), {});
-  const cors = (getConfig().api.cors === true ? {} : getConfig().api.cors) as ApiConfigCorsOptions;
+  const cors = getConfig().api.cors as ApiConfigCorsOptions;
   log.debug('[API] Reading CORS config', cors);
   if (cors) {
-    log.debug('[API] Setting CORS headers');
-    const allowedMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'].join(', ');
-    const exposedHeaders = Object.keys(headers)
-      .filter((v, i, a) => a.indexOf(v) === i)
-      .join(', ');
     finalHeaders['Access-Control-Allow-Origin'] = cors.origin || event.headers.origin;
-    finalHeaders['Access-Control-Allow-Methods'] = cors.methods || allowedMethods;
-    finalHeaders['Access-Control-Expose-Headers'] = cors.exposeHeaders || exposedHeaders;
-    finalHeaders['Access-Control-Allow-Headers'] = cors.allowHeaders || Object.keys(event.headers).join(', ');
   }
 
   return finalHeaders;
 };
 
 const multipleHeaders = (event: ApiHandlerEvent, headers: OutgoingHttpHeaders): MultiValueHeaders => {
-  return Object.keys(headers)
+  const finalHeaders = Object.keys(headers)
     .filter((k: string) => ['boolean', 'string', 'number'].indexOf(typeof headers[k]) === -1)
     .reduce((p: MultiValueHeaders, k: string) => Object.assign(p, {[k]: headers[k]}), {});
+
+  const cors = getConfig().api.cors as ApiConfigCorsOptions;
+  if (cors) {
+    const allowedMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'];
+    const exposedHeaders = Object.keys(headers).filter((v, i, a) => a.indexOf(v) === i);
+
+    finalHeaders['Access-Control-Allow-Methods'] = cors.methods || allowedMethods;
+    finalHeaders['Access-Control-Expose-Headers'] = cors.exposeHeaders || exposedHeaders;
+    finalHeaders['Access-Control-Allow-Headers'] = cors.allowHeaders || Object.keys(event.headers);
+  }
+
+  return finalHeaders;
 };
 
 const format = (event: ApiHandlerEvent, response: Response, content: any): APIGatewayProxyResult => {
@@ -75,12 +81,12 @@ const format = (event: ApiHandlerEvent, response: Response, content: any): APIGa
   log.debug('[API] Setting headers');
   const headers = singleHeaders(event, response.headers);
   const multiValueHeaders = multipleHeaders(event, response.headers);
-  if (!content) {
+  if (content === null || content === undefined || content === '') {
     log.debug('[API] No content returning 204');
     return {
       headers,
       multiValueHeaders,
-      statusCode: 204,
+      statusCode: event.httpMethod === 'POST' ? 201 : 204,
       body: '',
     };
   }
@@ -104,7 +110,10 @@ const formatError = (event: APIGatewayProxyEvent, response: Response, err: any):
     case 'BadRequestError':
       log.debug('[API] 400 - Bad request');
       response.statusCode = 400;
-      return format(event, response, 'Bad Request');
+      return format(event, response, err.details ? {data: err.details} : 'Bad Request');
+    case 'ForbiddenError':
+      response.statusCode = 403;
+      return format(event, response, err.details ? {data: err.details} : 'Forbidden');
     default:
       log.debug('[API] 500 - Generic error');
       response.statusCode = err.statusCode || 500;

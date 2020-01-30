@@ -1,11 +1,11 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
 
+import 'jest-extended';
+
 import { getConfig } from '../../config';
 import { TestingHandler } from '../index.spec';
-import { apiHandler } from './api';
-
-import 'jest-extended';
 import { callAfterMiddleware, callBeforeMiddleware, callErrorHandlers } from '../middleware';
+import { apiHandler } from './api';
 
 jest.mock('../../config');
 jest.mock('../middleware');
@@ -76,7 +76,35 @@ describe('handling', () => {
       });
     });
 
-    it('returns a 204 when response body is empty', async () => {
+    it('returns a 201 when response body is empty and request method is POST', async () => {
+      const response = await (apiHandler(
+        async (): Promise<any> => null,
+      ) as TestingHandler)({httpMethod: 'POST'});
+
+      expect(response).toStrictEqual({
+        statusCode: 201,
+        headers: {},
+        multiValueHeaders: {},
+        body: '',
+      });
+    });
+
+   it('returns a 204 when response body is empty', async () => {
+      const response = await (apiHandler(
+        async (): Promise<any> => {
+          // empty
+        },
+      ) as TestingHandler)({});
+
+      expect(response).toStrictEqual({
+        statusCode: 204,
+        headers: {},
+        multiValueHeaders: {},
+        body: '',
+      });
+    });
+
+    it('returns a 204 when response body is null', async () => {
       const response = await (apiHandler(
         async (): Promise<any> => null,
       ) as TestingHandler)({});
@@ -86,6 +114,45 @@ describe('handling', () => {
         headers: {},
         multiValueHeaders: {},
         body: '',
+      });
+    });
+
+    it('returns a 204 when response body is undefined', async () => {
+      const response = await (apiHandler(
+        async (): Promise<any> => undefined,
+      ) as TestingHandler)({});
+
+      expect(response).toStrictEqual({
+        statusCode: 204,
+        headers: {},
+        multiValueHeaders: {},
+        body: '',
+      });
+    });
+
+     it('returns a 204 when response body is an empty string', async () => {
+      const response = await (apiHandler(
+        async (): Promise<any> => '',
+      ) as TestingHandler)({});
+
+      expect(response).toStrictEqual({
+        statusCode: 204,
+        headers: {},
+        multiValueHeaders: {},
+        body: '',
+      });
+    });
+
+   it('does NOT return 204 when response body is false', async () => {
+      const response = await (apiHandler(
+        async (): Promise<any> => false,
+      ) as TestingHandler)({});
+
+      expect(response).toStrictEqual({
+        statusCode: 200,
+        headers: {},
+        multiValueHeaders: {},
+        body: 'false',
       });
     });
 
@@ -116,13 +183,14 @@ describe('handling', () => {
       expect(response).toStrictEqual({
         statusCode: 204,
         headers: {
-          'Access-Control-Allow-Headers': 'origin, x-foo, x-bar',
-          'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD',
-          'Access-Control-Expose-Headers': 'x-baz',
           'Access-Control-Allow-Origin': 'localhost',
           'x-baz': 'baz',
         },
-        multiValueHeaders: {},
+        multiValueHeaders: {
+          'Access-Control-Allow-Headers': ['origin', 'x-foo', 'x-bar'],
+          'Access-Control-Allow-Methods': ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
+          'Access-Control-Expose-Headers': ['x-baz'],
+        },
         body: '',
       });
     });
@@ -141,6 +209,78 @@ describe('handling', () => {
 
       expect(response).toStrictEqual({
         statusCode: 422,
+        headers: {},
+        multiValueHeaders: {},
+        body: JSON.stringify({data: errorDetails}),
+      });
+    });
+
+    it('formats forbidden errors', async () => {
+      const response = await (apiHandler(
+        async (): Promise<any> => {
+          throw {
+            name: 'ForbiddenError',
+          };
+        },
+      ) as TestingHandler)({});
+
+      expect(response).toStrictEqual({
+        statusCode: 403,
+        headers: {},
+        multiValueHeaders: {},
+        body: JSON.stringify('Forbidden'),
+      });
+    });
+
+    it('formats forbidden errors with additional details if provided', async () => {
+      const errorDetails = {reason: 'You are not allowed to do this. Only Chuck Norris can.'};
+      const response = await (apiHandler(
+        async (): Promise<any> => {
+          throw {
+            name: 'ForbiddenError',
+            details: errorDetails,
+          };
+        },
+      ) as TestingHandler)({});
+
+      expect(response).toStrictEqual({
+        statusCode: 403,
+        headers: {},
+        multiValueHeaders: {},
+        body: JSON.stringify({data: errorDetails}),
+      });
+    });
+
+    it('formats bad request errors', async () => {
+      const response = await (apiHandler(
+        async (): Promise<any> => {
+          throw {
+            name: 'BadRequestError',
+          };
+        },
+      ) as TestingHandler)({});
+
+      expect(response).toStrictEqual({
+        statusCode: 400,
+        headers: {},
+        multiValueHeaders: {},
+        body: JSON.stringify('Bad Request'),
+      });
+    });
+
+    it('formats bad request errors with additional details if provided', async () => {
+      const errorDetails = 'You can\'t turn a Smurf red. Smurf are BLUE.';
+      const response = await (apiHandler(
+        async (): Promise<any> => {
+          throw {
+            name: 'BadRequestError',
+            details: errorDetails,
+          };
+        },
+      ) as TestingHandler)({});
+
+      expect(response).toStrictEqual({
+        statusCode: 400,
         headers: {},
         multiValueHeaders: {},
         body: JSON.stringify({data: errorDetails}),

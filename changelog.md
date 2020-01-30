@@ -1,5 +1,15 @@
 # Changelog
 
+## v4.0.0
+- Feat: Returning empty response on POST is now 201
+
+## v3.0.5
+- Chore: Update dependencies
+
+## v3.0.4
+- Feat: Added 403 Forbidden error in api handler
+- Feat: Added details to both 400 and 403 errors
+
 ## v3.0.3
 - Fix: cors origin header takes the wrong header
 
