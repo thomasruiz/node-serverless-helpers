@@ -1,4 +1,5 @@
 import { ApiAfterMiddleware, ApiBeforeMiddleware, ApiErrorHandler } from './api';
+import {log} from '../debug';
 
 export type DefaultBeforeMiddleware = (event: any, context: any) => Promise<void>;
 export type BeforeMiddleware = ApiBeforeMiddleware | DefaultAfterMiddleware;
@@ -30,10 +31,11 @@ export const callBeforeMiddleware = async <T extends (...args: any[]) => any>(
   type: HandlingType,
   args: Parameters<T>,
 ): Promise<void> => {
+  log.debug('[MIDDLEWARE][BEFORE] Running generic middleware',  middlewareList.__ALWAYS__.before.map(f => f.name));
   for (const middleware of middlewareList.__ALWAYS__.before) {
     await middleware.apply({}, args);
   }
-
+  log.debug('[MIDDLEWARE][BEFORE] Running API gateway middleware',  middlewareList.ApiGateway.before.map(f => f.name));
   for (const middleware of middlewareList.ApiGateway.before) {
     await middleware.apply({}, args);
   }
@@ -43,10 +45,11 @@ export const callAfterMiddleware = async <T extends (...args: any[]) => any>(
   type: HandlingType,
   args: Parameters<T>,
 ): Promise<void> => {
+  log.debug('[MIDDLEWARE][AFTER] Running generic middleware',  middlewareList.__ALWAYS__.after.map(f => f.name));
   for (const middleware of middlewareList.ApiGateway.after) {
     await middleware.apply({}, args);
   }
-
+  log.debug('[MIDDLEWARE][AFTER] Running API gateway middleware',  middlewareList.ApiGateway.after.map(f => f.name));
   for (const middleware of middlewareList.__ALWAYS__.after) {
     await middleware.apply({}, args);
   }
@@ -56,10 +59,11 @@ export const callErrorHandlers = async <T extends (...args: any[]) => any>(
   type: HandlingType,
   args: Parameters<T>,
 ): Promise<void> => {
+  log.debug('[MIDDLEWARE][ERROR] Running generic middleware',  middlewareList.__ALWAYS__.errors.map(f => f.name));
   for (const middleware of middlewareList.ApiGateway.errors) {
     await middleware.apply({}, args);
   }
-
+  log.debug('[MIDDLEWARE][ERROR] Running API gateway middleware',  middlewareList.ApiGateway.errors.map(f => f.name));
   for (const middleware of middlewareList.__ALWAYS__.errors) {
     await middleware.apply({}, args);
   }
@@ -68,6 +72,10 @@ export const callErrorHandlers = async <T extends (...args: any[]) => any>(
 export function before(type: 'ApiGateway', middleware: ApiBeforeMiddleware[]): void;
 export function before(middleware: DefaultBeforeMiddleware[]): void;
 export function before(typeOrMiddleware: HandlingType | BeforeMiddleware[], middleware: BeforeMiddleware[] = []): void {
+  log.debug('[MIDDLEWARE][BEFORE] Registering middleware', {
+    type: Array.isArray(typeOrMiddleware) ? '__ALWAYS__' : typeOrMiddleware,
+    middleware: Array.isArray(typeOrMiddleware) ? typeOrMiddleware.map(f => f.name) : middleware.map(f => f.name),
+  });
   if (!isSendingType(typeOrMiddleware)) {
     middlewareList['__ALWAYS__'].before = typeOrMiddleware;
   } else {
@@ -78,6 +86,10 @@ export function before(typeOrMiddleware: HandlingType | BeforeMiddleware[], midd
 export function after(type: 'ApiGateway', middleware: ApiAfterMiddleware[]): void;
 export function after(middleware: DefaultAfterMiddleware[]): void;
 export function after(typeOrMiddleware: HandlingType | AfterMiddleware[], middleware: AfterMiddleware[] = []): void {
+  log.debug('[MIDDLEWARE][AFTER] Registering middleware', {
+    type: Array.isArray(typeOrMiddleware) ? '__ALWAYS__' : typeOrMiddleware,
+    middleware: Array.isArray(typeOrMiddleware) ? typeOrMiddleware.map(f => f.name) : middleware.map(f => f.name),
+  });
   if (!isSendingType(typeOrMiddleware)) {
     middlewareList['__ALWAYS__'].after = typeOrMiddleware;
   } else {
@@ -88,6 +100,10 @@ export function after(typeOrMiddleware: HandlingType | AfterMiddleware[], middle
 export function handleError(type: 'ApiGateway', middleware: ApiErrorHandler[]): void;
 export function handleError(middleware: DefaultErrorHandler[]): void;
 export function handleError(typeOrMiddleware: HandlingType | ErrorHandler[], middleware: ErrorHandler[] = []): void {
+  log.debug('[MIDDLEWARE][ERROR] Registering middleware', {
+    type: Array.isArray(typeOrMiddleware) ? '__ALWAYS__' : typeOrMiddleware,
+    middleware: Array.isArray(typeOrMiddleware) ? typeOrMiddleware.map(f => f.name) : middleware.map(f => f.name),
+  });
   if (!isSendingType(typeOrMiddleware)) {
     middlewareList['__ALWAYS__'].errors = typeOrMiddleware;
   } else {
