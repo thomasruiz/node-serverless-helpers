@@ -61,6 +61,10 @@ The important part is the `handle` function that does 3 things.
   event comes from, and add useful middlewares to it.
  3. Run your function, and wrap the result to the expected format.
 
+## Debug
+
+To print useful debug logs `export NODE_SLS_HELPERS_DEBUG=*`.
+
 ## TODO
 
  - Global logging system
