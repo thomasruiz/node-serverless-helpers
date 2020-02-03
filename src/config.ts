@@ -1,4 +1,5 @@
 import { all as merge } from 'deepmerge';
+import {log} from './debug';
 
 export interface ApiConfigCorsOptions {
   origin: string;
@@ -26,7 +27,9 @@ let internalConfig: ConfigOptions = {
 };
 
 export const config = (options: ConfigOptions): void => {
+  log.debug('[CONFIG] Updating config with', options);
   internalConfig = merge([internalConfig, options]) as ConfigOptions;
+  log.debug('[CONFIG] Used config', internalConfig);
 };
 
 export const getConfig = (): ConfigOptions => internalConfig;
